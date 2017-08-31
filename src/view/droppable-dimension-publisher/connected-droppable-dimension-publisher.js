@@ -31,7 +31,7 @@ export const makeSelector = (): Selector => {
   return createSelector(
     [getOwnType, requestDimensionSelector],
     (ownType: TypeId, requested: ?TypeId): MapProps =>
-      getMapProps(ownType === requested)
+      getMapProps(ownType === requested || (requested && requested.indexOf(ownType) === 0))
   );
 };
 

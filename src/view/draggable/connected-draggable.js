@@ -143,7 +143,7 @@ export const makeSelector = (): Selector => {
 
         const { current, impact } = drag;
 
-        if (current.type !== type) {
+        if (!(current.type === type || (current.type && current.type.indexOf(type) === 0))) {
           return defaultMapProps;
         }
 
@@ -178,7 +178,7 @@ export const makeSelector = (): Selector => {
           return defaultMapProps;
         }
 
-        if (type !== pending.result.type) {
+        if (!(type === pending.result.type || (pending.result.type && pending.result.type.indexOf(type) === 0))) {
           return defaultMapProps;
         }
 
@@ -251,4 +251,3 @@ export default connect(
   null,
   { storeKey },
 )(Draggable);
-

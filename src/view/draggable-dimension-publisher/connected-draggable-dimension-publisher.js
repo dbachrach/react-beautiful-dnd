@@ -31,7 +31,7 @@ export const makeSelector = (): Selector => {
   return createSelector(
     [getOwnType, requestDimensionSelector],
     (ownType: TypeId, requestId: ?TypeId): MapProps =>
-      getMapProps(ownType === requestId),
+      getMapProps(ownType === requestId || (requestId && requestId.indexOf(ownType) === 0))
   );
 };
 
@@ -50,4 +50,3 @@ export default connect(
   null,
   { storeKey },
 )(DraggableDimensionPublisher);
-
