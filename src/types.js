@@ -54,27 +54,36 @@ export type DimensionFragment = {|
 export type DraggableDimension = {|
   id: DraggableId,
   droppableId: DroppableId,
+  // relative to the viewport when the drag started
+  client: {|
+    withMargin: DimensionFragment,
+    withoutMargin: DimensionFragment,
+  |},
+  // relative to the whole page
   page: {|
     withMargin: DimensionFragment,
     withoutMargin: DimensionFragment,
   |},
-  client: {|
-    withMargin: DimensionFragment,
-    withoutMargin: DimensionFragment,
-  |}
 |}
 
 export type DroppableDimension = {|
   id: DroppableId,
   axis: Axis,
+  isEnabled: boolean,
   scroll: {|
     initial: Position,
     current: Position,
   |},
+  // relative to the current viewport
+  client: {|
+    withMargin: DimensionFragment,
+    withoutMargin: DimensionFragment,
+  |},
+  // relative to the whole page
   page: {|
     withMargin: DimensionFragment,
     withoutMargin: DimensionFragment,
-  |}
+  |},
 |}
 export type DraggableLocation = {|
   droppableId: DroppableId,
@@ -85,6 +94,8 @@ export type DraggableDimensionMap = { [key: DraggableId]: DraggableDimension };
 export type DroppableDimensionMap = { [key: DroppableId]: DroppableDimension };
 
 export type DragMovement = {|
+  // The draggables that need to move in response to a drag.
+  // Ordered by closest draggable to the *current* location of the dragging item
   draggables: DraggableId[],
   amount: Position,
   // is moving forward relative to the starting position
@@ -95,7 +106,7 @@ export type DragImpact = {|
   movement: DragMovement,
   // the direction of the Droppable you are over
   direction: ?Direction,
-  destination: ?DraggableLocation
+  destination: ?DraggableLocation,
 |}
 
 export type InitialDragLocation = {|
@@ -109,9 +120,9 @@ export type WithinDroppable = {|
 
 export type InitialDrag = {|
   source: DraggableLocation,
-  // viewport
+  // relative to the viewport when the drag started
   client: InitialDragLocation,
-  // viewport + window scroll
+  // viewport + window scroll (position relative to 0, 0)
   page: InitialDragLocation,
   // Storing scroll directly to support movement during a window scroll.
   // Value required for comparison with current scroll
@@ -142,7 +153,11 @@ export type CurrentDrag = {|
   windowScroll: Position,
   // viewport + scroll + droppable scroll
   withinDroppable: WithinDroppable,
+  // whether or not movements should be animated
   shouldAnimate: boolean,
+  droppable: DraggableLocation & {|
+    startIndex: number,
+  |}
 |}
 
 // published when a drag starts
@@ -203,10 +218,10 @@ export type Action = ActionCreators;
 export type Dispatch = ReduxDispatch<Action>;
 export type Store = ReduxStore<State, Action, Dispatch>;
 
-export type Hooks = {|
+export type Hooks = {
   onDragStart?: (start: DragStart) => void,
   onDragEnd: (result: DropResult) => void,
-|}
+}
 
 // These types are 'fake'. They really just resolve to 'any'.
 // But it is useful for readability and intention

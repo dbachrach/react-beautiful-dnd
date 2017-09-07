@@ -1,10 +1,9 @@
 // @flow
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Draggable } from '../../../src/';
 import { colors, grid } from '../constants';
+import type { DraggableProvided, DraggableStateSnapshot } from '../../../src/';
 import type { Author } from '../types';
-import type { Provided, StateSnapshot } from '../../../src/view/draggable/draggable-types';
 
 const Avatar = styled.img`
   width: 60px;
@@ -28,27 +27,25 @@ const Avatar = styled.img`
 
 export default class AuthorItem extends Component {
   props: {|
-    author: Author
+    author: Author,
+    provided: DraggableProvided,
+    snapshot: DraggableStateSnapshot,
   |}
 
   render() {
     const author: Author = this.props.author;
+    const provided: DraggableProvided = this.props.provided;
+    const snapshot: DraggableStateSnapshot = this.props.snapshot;
+
     return (
-      <Draggable draggableId={author.id}>
-        {(provided: Provided, snapshot: StateSnapshot) => (
-          <div>
-            <Avatar
-              innerRef={ref => provided.innerRef(ref)}
-              style={provided.draggableStyle}
-              {...provided.dragHandleProps}
-              src={author.avatarUrl}
-              alt={author.name}
-              isDragging={snapshot.isDragging}
-            />
-            {provided.placeholder}
-          </div>
-        )}
-      </Draggable>
+      <Avatar
+        innerRef={ref => provided.innerRef(ref)}
+        style={provided.draggableStyle}
+        {...provided.dragHandleProps}
+        src={author.avatarUrl}
+        alt={author.name}
+        isDragging={snapshot.isDragging}
+      />
     );
   }
 }

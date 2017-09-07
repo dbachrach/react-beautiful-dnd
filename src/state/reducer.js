@@ -22,10 +22,9 @@ import type { TypeId,
 } from '../types';
 import { add, subtract, negate } from './position';
 import getDragImpact from './get-drag-impact';
-import jumpToNextIndex from './jump-to-next-index';
-import type { JumpToNextResult } from './jump-to-next-index';
-import type { Result as MoveToNewSpotResult } from './move-to-best-droppable/move-to-new-spot';
-import getDroppableOver from './get-droppable-over';
+import jumpToNextIndex from './jump-to-next-index/';
+import type { Result as JumpToNextResult } from './jump-to-next-index/jump-to-next-index-types';
+import type { Result as MoveToNewDroppable } from './move-to-best-droppable/move-to-new-droppable';
 import moveToBestDroppable from './move-to-best-droppable/';
 
 const noDimensions: DimensionState = {
@@ -403,9 +402,8 @@ export default (state: State = clean('IDLE'), action: Action): State => {
       isMovingForward,
       draggableId: existing.current.id,
       impact: existing.impact,
-      center: existing.current.page.center,
+      droppable: state.dimension.droppable[existing.impact.destination.droppableId],
       draggables: state.dimension.draggable,
-      droppables: state.dimension.droppable,
     });
 
     // cannot move anyway (at the beginning or end of a list)
@@ -413,22 +411,24 @@ export default (state: State = clean('IDLE'), action: Action): State => {
       return state;
     }
 
-    const diff: Position = result.diff;
     const impact: DragImpact = result.impact;
 
-    const page: Position = add(existing.current.page.selection, diff);
-    const client: Position = add(existing.current.client.selection, diff);
+    // const page: Position = add(existing.current.page.selection, diff);
+    // const client: Position = add(existing.current.client.selection, diff);
 
     // current limitation: cannot go beyond visible border of list
-    const droppableId: ?DroppableId = getDroppableOver(
-      page, state.dimension.droppable,
-    );
+    // const droppableId: ?DroppableId = getDroppableOver(
+    //   result.center, state.dimension.droppable,
+    // );
 
-    if (!droppableId) {
-      // eslint-disable-next-line no-console
-      console.info('currently not supporting moving a draggable outside the visibility bounds of a droppable');
-      return state;
-    }
+    // if (!droppableId) {
+    //   // eslint-disable-next-line no-console
+    //   console.info('currently not supporting moving a draggable outside the visibility bounds of a droppable');
+    //   return state;
+    // }
+
+    const page: Position = result.pageCenter;
+    const client: Position = subtract(page, existing.current.windowScroll);
 
     return move({
       state,
@@ -461,12 +461,15 @@ export default (state: State = clean('IDLE'), action: Action): State => {
     const draggableId: DraggableId = current.id;
     const center: Position = current.page.center;
     const droppableId: DroppableId = state.drag.impact.destination.droppableId;
+    const home: DraggableLocation = state.drag.initial.source;
 
-    const result: ?MoveToNewSpotResult = moveToBestDroppable({
+    const result: ?MoveToNewDroppable = moveToBestDroppable({
       isMovingForward: action.type === 'CROSS_AXIS_MOVE_FORWARD',
-      center,
+      pageCenter: center,
       draggableId,
       droppableId,
+      home,
+      impact: state.drag.impact,
       draggables: state.dimension.draggable,
       droppables: state.dimension.droppable,
     });
@@ -475,10 +478,13 @@ export default (state: State = clean('IDLE'), action: Action): State => {
       return state;
     }
 
+    const page: Position = result.pageCenter;
+    const client: Position = subtract(page, current.windowScroll);
+
     return move({
       state,
-      clientSelection: result.center,
-      pageSelection: result.center,
+      clientSelection: client,
+      pageSelection: page,
       impact: result.impact,
       shouldAnimate: true,
     });

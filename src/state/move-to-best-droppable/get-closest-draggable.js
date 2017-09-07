@@ -11,7 +11,7 @@ import type {
 
 type Args = {|
   axis: Axis,
-  center: Position,
+  pageCenter: Position,
   // how far the destination Droppable is scrolled
   scrollOffset: Position,
   // the droppable that is being moved to
@@ -24,7 +24,7 @@ const isVisible = (draggable: DraggableDimension, droppable: DroppableDimension)
 
 export default ({
   axis,
-  center,
+  pageCenter,
   scrollOffset,
   destination,
   draggables,
@@ -38,8 +38,10 @@ export default ({
     siblings
       .filter((draggable: DraggableDimension) => isVisible(draggable, destination))
       .sort((a: DraggableDimension, b: DraggableDimension): number => {
-        const distanceToA = distance(center, add(a.page.withMargin.center, scrollOffset));
-        const distanceToB = distance(center, add(b.page.withMargin.center, scrollOffset));
+        // TODO: not considering scroll offset
+        console.log('scroll offset', scrollOffset);
+        const distanceToA = distance(pageCenter, a.page.withMargin.center);
+        const distanceToB = distance(pageCenter, b.page.withMargin.center);
 
         // if a is closer - return a
         if (distanceToA < distanceToB) {

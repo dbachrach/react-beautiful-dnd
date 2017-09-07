@@ -1,9 +1,8 @@
 // @flow
 import getBestCrossAxisDroppable from './get-best-cross-axis-droppable';
-import getDraggablesInsideDroppable from '../get-draggables-inside-droppable';
 import getClosestDraggable from './get-closest-draggable';
-import moveToNewSpot from './move-to-new-spot';
-import type { Result } from './move-to-new-spot';
+import moveToNewDroppable from './move-to-new-droppable/';
+import type { Result } from './move-to-new-droppable';
 import type {
   DraggableId,
   DroppableId,
@@ -12,16 +11,22 @@ import type {
   DraggableDimension,
   DraggableDimensionMap,
   DroppableDimensionMap,
+  DraggableLocation,
+  DragImpact,
 } from '../../types';
 
 type Args = {|
   isMovingForward: boolean,
-  // the current center of the dragging item
-  center: Position,
+  // the current page center of the dragging item
+  pageCenter: Position,
   // the dragging item
   draggableId: DraggableId,
   // the droppable the dragging item is in
   droppableId: DroppableId,
+  // the original location of the draggable
+  home: DraggableLocation,
+  // the current drag impact
+  impact: DragImpact,
   // all the dimensions in the system
   draggables: DraggableDimensionMap,
   droppables: DroppableDimensionMap,
@@ -29,10 +34,12 @@ type Args = {|
 
 export default ({
   isMovingForward,
-  center,
+  pageCenter,
   draggableId,
   droppableId,
+  home,
   draggables,
+  impact,
   droppables,
   }: Args): ?Result => {
   const draggable: DraggableDimension = draggables[draggableId];
@@ -40,7 +47,7 @@ export default ({
 
   const destination: ?DroppableDimension = getBestCrossAxisDroppable({
     isMovingForward,
-    center,
+    pageCenter,
     source,
     droppables,
   });
@@ -57,18 +64,19 @@ export default ({
 
   const target: ?DraggableDimension = getClosestDraggable({
     axis: destination.axis,
-    center,
+    pageCenter,
     scrollOffset: destination.scroll.current,
     destination,
     draggables,
   });
 
-  return moveToNewSpot({
-    center,
-    source,
-    destination,
+  return moveToNewDroppable({
+    pageCenter,
     draggable,
     target,
+    destination,
+    home,
+    impact,
     draggables,
   });
 };

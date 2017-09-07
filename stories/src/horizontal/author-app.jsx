@@ -2,13 +2,18 @@
 import React, { Component } from 'react';
 import styled, { injectGlobal } from 'styled-components';
 import { action } from '@storybook/addon-actions';
-import { DragDropContext } from '../../../src/';
+import { Draggable, DragDropContext } from '../../../src/';
+import type {
+  DropResult,
+  DragStart,
+  DraggableProvided,
+  DraggableStateSnapshot,
+} from '../../../src';
 import AuthorList from './author-list';
-import AuthorItem from './author-item';
+import AuthorItem from '../primatives/author-item';
 import reorder from '../reorder';
 import { colors, grid } from '../constants';
 import type { Author } from '../types';
-import type { DropResult, DragStart } from '../../../src/types';
 import type { Overflow } from './types';
 
 const isDraggingClassName = 'is-dragging';
@@ -85,10 +90,22 @@ export default class AuthorApp extends Component {
         <Root>
           <AuthorList listId="list" overflow={this.props.overflow}>
             {this.state.authors.map((author: Author) => (
-              <AuthorItem
+              <Draggable
                 key={author.id}
-                author={author}
-              />
+                draggableId={author.id}
+              >
+                {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+                  <div>
+                    <AuthorItem
+                      author={author}
+                      provided={provided}
+                      snapshot={snapshot}
+                    />
+                    {provided.placeholder}
+                  </div>
+                )}
+
+              </Draggable>
             ))}
           </AuthorList>
         </Root>

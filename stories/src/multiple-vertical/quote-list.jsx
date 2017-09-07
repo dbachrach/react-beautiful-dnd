@@ -6,13 +6,11 @@ import QuoteItem from '../primatives/quote-item';
 import { grid, colors } from '../constants';
 import type { Quote } from '../types';
 import type {
-  Provided as DroppableProvided,
-  StateSnapshot as DroppableStateSnapshot,
-} from '../../../src/view/droppable/droppable-types';
-import type {
-  Provided as DraggableProvided,
-  StateSnapshot as DraggableStateSnapshot,
-} from '../../../src/view/draggable/draggable-types';
+  DroppableProvided,
+  DroppableStateSnapshot,
+  DraggableProvided,
+  DraggableStateSnapshot,
+} from '../../../src/';
 
 const Wrapper = styled.div`
   width: 250px;
@@ -31,8 +29,7 @@ const DropZone = styled.div`
 `;
 
 const ScrollContainer = styled.div`
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: auto;
   max-height: 400px;
 `;
 
@@ -55,7 +52,7 @@ export default class QuoteList extends Component {
     quotes: Quote[],
     listType?: string,
     style?: Object,
-    internalScroll?: boolean,
+    internalScroll ?: boolean,
   |}
 
   renderBoard = (dropProvided: DroppableProvided) => {

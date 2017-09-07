@@ -5,7 +5,6 @@ import { action } from '@storybook/addon-actions';
 import { DragDropContext } from '../../../src/';
 import QuoteList from './quote-list';
 import { colors, grid } from '../constants';
-import reorder from '../reorder';
 import type { Quote } from '../types';
 import type { DropResult, DragStart, DraggableLocation } from '../../../src/types';
 
@@ -49,7 +48,10 @@ type State = {|
   quotes: GroupedQuotes,
 |}
 
-const resolveDrop = (quotes: GroupedQuotes, source: DraggableLocation, destination: DraggableLocation): GroupedQuotes => {
+const resolveDrop = (quotes: GroupedQuotes,
+  source: DraggableLocation,
+  destination: DraggableLocation
+): GroupedQuotes => {
   const newQuotes: GroupedQuotes = { ...quotes };
 
   const movedQuote = quotes[source.droppableId][source.index];
